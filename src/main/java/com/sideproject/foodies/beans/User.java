@@ -1,6 +1,7 @@
 package com.sideproject.foodies.beans;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -33,6 +34,7 @@ public class User {
 	private String email;
 	private String phoneNumber;
 	private String address;
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-	private Vector<Order> orders;
+	@OneToMany(cascade = 
+		{CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE}, mappedBy = "user")
+	private List<Order> orders = new ArrayList<>();
 }
