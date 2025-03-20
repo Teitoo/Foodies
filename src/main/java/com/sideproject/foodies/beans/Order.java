@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -16,9 +17,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,14 +46,21 @@ public class Order {
 	private Date updatedTime;
 	
 	private int total;
+	
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 	
-	@ManyToMany
-	@JoinTable(
-			name = "order_cuisine",
-			joinColumns = @JoinColumn(name = "order_id"),
-			inverseJoinColumns = @JoinColumn(name = "cuisine_id"))
-	private List<Cuisine> cuisines = new ArrayList<>();
+	@OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
+	private List<OrderItem> orderItems = new ArrayList<>();
+	
+	public void addOrderItem(OrderItem orderItem) {
+		orderItems.add(orderItem);
+		orderItem.setOrder(this);
+	}
+	
+	public void removeOrderItem(OrderItem orderItem) {
+		orderItems.remove(orderItem);
+		orderItem.setOrder(null);
+	}
 }

@@ -3,11 +3,12 @@ package com.sideproject.foodies.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class Cuisine {
 	private String name;
 	private int price;
 	
-	@ManyToMany(mappedBy = "cuisines")
-	private List<Order> orders = new ArrayList<>();
+	@OneToMany(mappedBy = "cuisine", cascade = CascadeType.PERSIST)
+	//不使用orphanRemoval，考慮就算菜品刪除後訂單品項也應該保留
+	private List<OrderItem> orderItems = new ArrayList<>();
 }

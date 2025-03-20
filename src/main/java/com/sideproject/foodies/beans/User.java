@@ -35,6 +35,6 @@ public class User {
 	private String phoneNumber;
 	private String address;
 	@OneToMany(cascade = 
-		{CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE}, mappedBy = "user")
+		{CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "user")
 	private List<Order> orders = new ArrayList<>();
 }
