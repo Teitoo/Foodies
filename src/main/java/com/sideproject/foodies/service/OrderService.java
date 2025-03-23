@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import com.sideproject.foodies.beans.Cuisine;
 import com.sideproject.foodies.beans.Order;
 import com.sideproject.foodies.beans.OrderItem;
+import com.sideproject.foodies.beans.User;
 import com.sideproject.foodies.repository.CuisineRepository;
-import com.sideproject.foodies.repository.OrderItemRepository;
 import com.sideproject.foodies.repository.OrderRepository;
 import com.sideproject.foodies.repository.UserRepository;
 
@@ -23,8 +23,6 @@ public class OrderService {
 	UserRepository uRepo;
 	@Autowired
 	OrderRepository oRepo;
-	@Autowired
-	OrderItemRepository iRepo;
 	@Autowired
 	CuisineRepository cRepo;
 
@@ -77,12 +75,10 @@ public class OrderService {
 		}
 		return oRepo.save(order);
 	}
-
-	public int calculate(List<Cuisine> cuisines) {
-		int res = 0;
-		for (Cuisine c : cuisines)
-			res += c.getPrice();
-		return res;
+	
+	public List<Order> getOrderHistory(Long id) {
+		User u = uRepo.findById(id)
+			.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+		return u.getOrders();
 	}
-
 }
