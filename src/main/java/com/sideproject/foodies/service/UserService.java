@@ -1,5 +1,6 @@
 package com.sideproject.foodies.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +23,17 @@ public class UserService {
 	PasswordEncoder pwEncoder;
 
 	public UserDTO registerUser(String username, String rawPw, String email, Role role) throws NameReplicateException {
-		if(uRepo.findByUsername(username).isPresent()) {
+		User u = new User();
+		if (uRepo.findByUsername(username).isPresent()) {
 			throw new NameReplicateException("Name " + username + "already exist");
-		}
-		else {
-			User u = new User();
+		} else {
 			u.setUsername(username);
 			u.setPassword(pwEncoder.encode(rawPw));
 			u.setEmail(email);
 			u.setRole(role);
 		}
-		UserDTO u = new UserDTO(username, email, role);
-		return u;
+		UserDTO userDTO = new UserDTO(u);
+		return userDTO;
 	}
 
 	public List<User> findAll() {
@@ -44,22 +44,28 @@ public class UserService {
 		return uRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
 	}
 
-	public User updateUser(Long id, User u) {
-		User oldUser = uRepo.findById(id).map(existingUser -> {
-			existingUser.setUsername(u.getUsername());
-			existingUser.setPassword(u.getPassword());
-			existingUser.setAddress(u.getAddress());
-			existingUser.setEmail(u.getEmail());
-			existingUser.setPhoneNumber(u.getPhoneNumber());
-			return existingUser;
+	public UserDTO updateUser(Long id, User u) {
+		User existingUser = uRepo.findById(id).map(user -> {
+			user.setUsername(u.getUsername());
+			user.setPassword(pwEncoder.encode(u.getPassword()));
+			user.setAddress(u.getAddress());
+			user.setEmail(u.getEmail());
+			user.setPhoneNumber(u.getPhoneNumber());
+			return user;
 		}).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
 		// 清除User和Order的原有關聯後新增
-		oldUser.getOrders().forEach(order -> order.setUser(null));
-		for (Order o : u.getOrders()) {
-			o.setUser(u);
-			u.getOrders().add(o);
+		List<Order> oldOrders = new ArrayList<>(existingUser.getOrders());
+		oldOrders.forEach(order -> order.setUser(null));
+		existingUser.getOrders().clear();
+
+		if (u.getOrders() != null) {
+			for (Order o : u.getOrders()) {
+				o.setUser(existingUser);
+				existingUser.getOrders().add(o);
+			}
 		}
-		return uRepo.save(u);
+		uRepo.save(existingUser);
+		return new UserDTO(existingUser);
 	}
 
 	public void deleteById(Long id) {
