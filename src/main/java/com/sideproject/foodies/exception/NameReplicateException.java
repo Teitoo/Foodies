@@ -10,7 +10,6 @@ public class NameReplicateException extends RuntimeException {
 	private String message;
 
 	public NameReplicateException(String message) {
-		// TODO Auto-generated constructor stub
 		this.message = message;
 		System.out.println(this.message);
 	}

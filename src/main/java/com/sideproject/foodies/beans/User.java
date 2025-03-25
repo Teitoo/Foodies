@@ -41,14 +41,14 @@ public class User implements UserDetails{
 	private String email;
 	private String phoneNumber;
 	private String address;
+	@Enumerated(EnumType.STRING)
+	private Role role;
 	
 	public User(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}
 	
-	@Enumerated(EnumType.STRING)
-	private Role role;
 	
 	@OneToMany(cascade = 
 		{CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "user")
